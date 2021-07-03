@@ -1,0 +1,18 @@
+#!/usr/bin/env python3
+
+import sys
+from gcardvault import Gcardvault, GcardvaultError
+
+
+def main():
+    try:
+        Gcardvault().run(sys.argv[1:])
+        return 0
+    except GcardvaultError as e:
+        print(f"gcardvault: {e}", file=sys.stderr)
+        print("gcardvault: Run 'gcardvault --help' for more information", file=sys.stderr)
+        return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<d:multistatus xmlns:cal="urn:ietf:params:xml:ns:caldav" xmlns:card="urn:ietf:params:xml:ns:carddav" xmlns:cs="http://calendarserver.org/ns/" xmlns:d="DAV:" xmlns:ical="http://apple.com/ns/ical/">
+{%- for record in records %}
+ <d:response>
+  <d:href>{{ record['href'] }}</d:href>
+  <d:propstat>
+   <d:status>HTTP/1.1 200 OK</d:status>
+   <d:prop>
+    <card:address-data>{{ record['vcard'] }}</card:address-data>
+   </d:prop>
+  </d:propstat>
+ </d:response>
+{%- endfor %}
+</d:multistatus>

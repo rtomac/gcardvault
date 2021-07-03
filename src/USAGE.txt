@@ -1,0 +1,35 @@
+Exports all of a user's Google Contacts in vCard/VCF format for backup (or portability).
+
+Usage:
+  gcardvault sync <user>
+  gcardvault sync <user> --export-only
+  gcardvault -h | --help
+  gcardvault --version
+
+Options:
+  user              Required. Google username/email address,
+                    e.g. foo.bar@gmail.com.
+  -e --export-only  Export contacts to output dir only, do not create and
+                    manage version history in a vault.
+  -f --clean        Force clean the output directory, actively removing
+                    .vcf files that are no longer being synced from Google.
+  -c --conf-dir     Directory where configuration is stored (e.g. access
+                    token). Defaults to ~/.gcardvault.
+  -o --output-dir --vault-dir
+                    Directory to which contact .vcf files are exported
+                    and/or stored. Defaults to the current working directory.
+  --client-id       Recommended. Custom OAuth2 client ID you've provisioned
+                    with Google to use when authorizing user access.
+  --client-secret   Client secret for custom client ID provided
+                    via --client-id.
+  -h --help         Show this help screen.
+  --version         Show the program's version.
+
+This program will discover all of a user's contacts (via Google's People
+API) and export each of them as a .vcf file.
+
+The sync function is meant to be used in one of two ways:
+- As a simple export utility (via --export-only).
+- As a backup utility, with version history for each of the contacts exported
+  (default behavior). Version history is stored under the covers in a git
+  repository managed by gcardvault.

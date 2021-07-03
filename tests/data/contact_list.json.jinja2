@@ -1,0 +1,40 @@
+{
+    "connections": [
+{%- for record in records %}
+      {
+        "resourceName": "people/{{ record['resource_id'] }}",
+        "etag": "abc123",
+        "metadata": {
+          "sources": [
+            {
+              "type": "CONTACT",
+              "id": "{{ record['id'] }}",
+              "etag": "{{ record['etag'] }}",
+              "updateTime": "2020-07-01T12:00:00.0Z"
+            }
+          ],
+          "objectType": "PERSON"
+        },
+        "names": [
+          {
+            "metadata": {
+              "primary": true,
+              "source": {
+                "type": "CONTACT",
+                "id": "{{ record['id'] }}"
+              }
+            },
+            "displayName": "{{ record['first_name'] }} {{ record['last_name'] }}",
+            "familyName": "{{ record['last_name'] }}",
+            "givenName": "{{ record['first_name'] }}",
+            "displayNameLastFirst": "{{ record['last_name'] }}, {{ record['first_name'] }}",
+            "unstructuredName": "{{ record['first_name'] }} {{ record['last_name'] }}"
+          }
+        ]
+      }{% if not loop.last %},{% endif %}
+{%- endfor %}
+    ],
+    {% if next_page_token %}"nextPageToken": "{{next_page_token}}",{% endif %}
+    "totalPeople": {{total_people}},
+    "totalItems": {{total_items}}
+  }
