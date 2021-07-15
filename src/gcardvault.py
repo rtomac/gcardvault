@@ -170,6 +170,7 @@ class Gcardvault:
                     os.remove(token_file_path)
                 raise GcardvaultError(f"Authenticated user - {profile_email} - was different than <user> argument specified")
 
+        #print(credentials.token)
         return credentials
 
     def _get_contacts(self, credentials):
