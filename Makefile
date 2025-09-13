@@ -8,7 +8,7 @@ container_hub_acct=rtomac
 image_name:=${pkg_name}
 image_tag=latest
 image_version_tag:=${pkg_version}
-image_platforms=linux/amd64,linux/arm64,linux/arm/v7,linux/arm/v6
+image_platforms=linux/arm64,linux/amd64,linux/amd64/v2,linux/riscv64,linux/ppc64le,linux/s390x,linux/386,linux/arm/v7,linux/arm/v6
 
 all: dist
 
@@ -66,11 +66,20 @@ docker-debug:
 		${image_name}:local
 
 .PHONY: release
-release: test
-	twine upload --repository testpypi dist/${pkg_name}-${pkg_version}.tar.gz
+release:
+	@read -p "Are you sure you're on the main branch, ready to tag and release? (y/n) " answer; [ "$$answer" = "y" ] || { echo "Aborted"; exit 1; };
 	
+	git tag -a "v${pkg_version}" -m "Release version ${pkg_version}"
+	git push origin "v${pkg_version}"
+	gh release create "v${pkg_version}" dist/${pkg_name}-${pkg_version}.tar.gz --title "v${pkg_version}"
+
+	# Publish to test.pypi.org
+	twine upload --repository testpypi dist/${pkg_name}-${pkg_version}.tar.gz
+
+	# Publish to pypi.org
 	twine upload dist/${pkg_name}-${pkg_version}.tar.gz
 
+	# Build and push multi-arch image to Docker Hub
 	docker buildx build \
 		--tag "${container_hub_acct}/${image_name}:${image_tag}" \
 		--tag "${container_hub_acct}/${image_name}:${image_version_tag}" \
