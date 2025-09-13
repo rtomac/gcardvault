@@ -82,7 +82,7 @@ class Gcardvault:
             self._token_file_path(), self.client_id, self.client_secret, OAUTH_SCOPES, self.user)
 
         if not self.export_only:
-            self._repo = GitVaultRepo("gcardvault", self.output_dir, [".vcf"])
+            self._repo = GitVaultRepo("gcardvault", self.version(), self.output_dir, [".vcf"])
 
         contacts = self._get_contacts(credentials)
 
