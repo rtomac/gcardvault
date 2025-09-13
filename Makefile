@@ -66,9 +66,9 @@ docker-debug:
 		${image_name}:local
 
 .PHONY: release
-release:
+release: test dist
 	@read -p "Are you sure you're on the main branch, ready to tag and release? (y/n) " answer; [ "$$answer" = "y" ] || { echo "Aborted"; exit 1; };
-	
+
 	git tag -a "v${pkg_version}" -m "Release version ${pkg_version}"
 	git push origin "v${pkg_version}"
 	gh release create "v${pkg_version}" dist/${pkg_name}-${pkg_version}.tar.gz --title "v${pkg_version}"
