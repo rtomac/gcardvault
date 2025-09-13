@@ -1,10 +1,21 @@
 Exports all of a user's Google Contacts in vCard/VCF format for backup (or portability).
 
 Usage:
-  gcardvault sync <user>
-  gcardvault sync <user> --export-only
+  gcardvault sync <user> [(-e|--export-only)] [(-f|--clean)]
+                         [(-c|--conf-dir) <dir>] [(-o|--output-dir) <dir>]
+                         [--client-id <id>] [--client-secret <secret>]
+  gcardvault login <user> [--client-id <id>] [--client-secret <secret>]
+  gcardvault authorize <user> [--client-id <id>] [--client-secret <secret>]
   gcardvault -h | --help
   gcardvault --version
+
+Commands:
+  sync              Sync the user's contacts. Initiates a 'login' if
+                    there is not already a valid access token in
+                    the conf dir.
+  login             Force a user login and save the access token.
+  authorize         Force a user login and emit the access token to the
+                    terminal for use on another (headless) machine.
 
 Options:
   user              Required. Google username/email address,
@@ -17,7 +28,8 @@ Options:
                     token). Defaults to ~/.gcardvault.
   -o --output-dir --vault-dir
                     Directory to which contact .vcf files are exported
-                    and/or stored. Defaults to the current working directory.
+                    and/or stored. Defaults to a subfolder called 'gcardvault'
+                    under the current working directory.
   --client-id       Recommended. Custom OAuth2 client ID you've provisioned
                     with Google to use when authorizing user access.
   --client-secret   Client secret for custom client ID provided
@@ -28,7 +40,7 @@ Options:
 This program will discover all of a user's contacts (via Google's People
 API) and export each of them as a .vcf file.
 
-The sync function is meant to be used in one of two ways:
+The sync operation is meant to be used in one of two ways:
 - As a simple export utility (via --export-only).
 - As a backup utility, with version history for each of the contacts exported
   (default behavior). Version history is stored under the covers in a git

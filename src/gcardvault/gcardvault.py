@@ -5,6 +5,7 @@ import pathlib
 from getopt import gnu_getopt, GetoptError
 from xml.etree import ElementTree
 from googleapiclient.discovery import build
+from dotenv import load_dotenv
 
 from .google_oauth2 import GoogleOAuth2
 from .git_vault_repo import GitVaultRepo
@@ -13,8 +14,12 @@ from .etag_manager import ETagManager
 
 # Note: OAuth2 auth code flow for "installed applications" assumes the client secret
 # cannot actually be kept secret (must be embedded in application/source code).
-# Access to user data must be consented by the user and [more importantly] the
+# Access to user data must be consented by the user and (more importantly) the
 # access & refresh tokens are stored locally with the user running the program.
+# 
+# See https://developers.google.com/identity/protocols/oauth2/native-app
+# “Installed apps are distributed to individual devices, and it is assumed
+# that these apps cannot keep secrets.”
 DEFAULT_CLIENT_ID = "160026605549-ktl7ghvc9gttpa8u902nm65j3tro3119.apps.googleusercontent.com"
 DEFAULT_CLIENT_SECRET = "v9IMS-73WqhjbE5TOB5Gz90s"
 OAUTH_SCOPES = [
@@ -33,7 +38,9 @@ GOOGLE_CARDDAV_CONTACT_HREF_FORMAT = "/carddav/v1/principals/{principal}/lists/d
 CONTACT_RESOURCE_PAGE_SIZE = 500
 CARDDAV_REPORT_PAGE_SIZE = 250
 
-COMMANDS = ['sync', 'noop']
+COMMANDS = ['sync', 'login', 'authorize', 'noop']
+
+load_dotenv()
 
 dirname = os.path.dirname(__file__)
 usage_file_path = os.path.join(dirname, "USAGE.txt")
@@ -47,13 +54,16 @@ class Gcardvault:
         self.user = None
         self.export_only = False
         self.clean = False
-        self.conf_dir = os.path.expanduser("~/.gcardvault")
-        self.output_dir = os.getcwd()
+        self.conf_dir = os.getenv("GCARDVAULT_CONF_DIR", os.path.expanduser("~/.gcardvault"))
+        self.output_dir = os.getenv("GCARDVAULT_OUTPUT_DIR", os.path.join(os.getcwd(), 'gcardvault'))
         self.client_id = DEFAULT_CLIENT_ID
         self.client_secret = DEFAULT_CLIENT_SECRET
 
         self._repo = None
-        self._google_oauth2 = google_oauth2 if google_oauth2 is not None else GoogleOAuth2()
+        self._google_oauth2 = google_oauth2 if google_oauth2 is not None else GoogleOAuth2(
+            app_name="gcardvault",
+            authorize_command="gcardvault authorize {email_addr}",
+        )
         self._google_apis = google_apis if google_apis is not None else GoogleApis()
 
     def run(self, cli_args):
@@ -67,10 +77,12 @@ class Gcardvault:
 
     def sync(self):
         self._ensure_dirs()
-        credentials = self._get_oauth2_credentials()
+
+        (credentials, _) = self._google_oauth2.get_credentials(
+            self._token_file_path(), self.client_id, self.client_secret, OAUTH_SCOPES, self.user)
 
         if not self.export_only:
-            self._repo = GitVaultRepo("gcardvault", self.output_dir, [".vcf"])
+            self._repo = GitVaultRepo("gcardvault", self.version(), self.output_dir, [".vcf"])
 
         contacts = self._get_contacts(credentials)
 
@@ -86,6 +98,16 @@ class Gcardvault:
 
         if self._repo:
             self._repo.commit("gcardvault sync")
+
+    def login(self):
+        self._ensure_dirs()
+        self._google_oauth2.authz_and_save_token(
+            self._token_file_path(), self.client_id, self.client_secret, OAUTH_SCOPES, self.user)
+
+    def authorize(self):
+        self._ensure_dirs()
+        self._google_oauth2.authz_and_export_token(
+            self.client_id, self.client_secret, OAUTH_SCOPES, self.user)
 
     def usage(self):
         return pathlib.Path(usage_file_path).read_text().strip()
@@ -155,24 +177,10 @@ class Gcardvault:
     def _ensure_dirs(self):
         for dir in [self.conf_dir, self.output_dir]:
             pathlib.Path(dir).mkdir(parents=True, exist_ok=True)
-
-    def _get_oauth2_credentials(self):
-        token_file_path = os.path.join(self.conf_dir, f"{self.user}.token.json")
-
-        (credentials, new_authorization) = self._google_oauth2 \
-            .get_credentials(token_file_path, self.client_id, self.client_secret, OAUTH_SCOPES, self.user)
-
-        if new_authorization:
-            user_info = self._google_oauth2.request_user_info(credentials)
-            profile_email = user_info['email'].lower().strip()
-            if self.user != profile_email:
-                if os.path.exists(token_file_path):
-                    os.remove(token_file_path)
-                raise GcardvaultError(f"Authenticated user - {profile_email} - was different than <user> argument specified")
-
-        #print(credentials.token)
-        return credentials
-
+    
+    def _token_file_path(self):
+        return os.path.join(self.conf_dir, f"{self.user}.token.json")
+    
     def _get_contacts(self, credentials):
         contacts = []
 
@@ -319,7 +327,7 @@ class Gcardvault:
         return files_on_disk
 
 
-class GcardvaultError(RuntimeError):
+class GcardvaultError(ValueError):
     pass
 
 
