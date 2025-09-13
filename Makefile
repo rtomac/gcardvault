@@ -50,6 +50,7 @@ docker-test:
 		-v ${PWD}/.conf:/root/.${pkg_name} \
 		-v ${PWD}/output:/root/${pkg_name} \
 		-v ${PWD}:/usr/local/src/${pkg_name} \
+		--env-file ${PWD}/.env \
 		--workdir /usr/local/src/${pkg_name} \
 		--entrypoint pytest \
 		${image_name}:local
