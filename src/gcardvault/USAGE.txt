@@ -4,6 +4,8 @@ Usage:
   gcardvault sync <user> [(-e|--export-only)] [(-f|--clean)]
                          [(-c|--conf-dir) <dir>] [(-o|--output-dir) <dir>]
                          [--client-id <id>] [--client-secret <secret>]
+  gcardvault login <user> [--client-id <id>] [--client-secret <secret>]
+  gcardvault authorize <user> [--client-id <id>] [--client-secret <secret>]
   gcardvault -h | --help
   gcardvault --version
 
@@ -11,6 +13,9 @@ Commands:
   sync              Sync the user's contacts. Initiates a 'login' if
                     there is not already a valid access token in
                     the conf dir.
+  login             Force a user login and save the access token.
+  authorize         Force a user login and emit the access token to the
+                    terminal for use on another (headless) machine.
 
 Options:
   user              Required. Google username/email address,
