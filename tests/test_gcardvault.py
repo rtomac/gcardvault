@@ -378,7 +378,8 @@ def _read_file(dir_path, file_name):
 def _assert_git_repo_state(output_dir, repo_exists=True, commit_count=None, last_commit_file_count=None):
     assert os.path.exists(os.path.join(output_dir, ".git")) == repo_exists
     if commit_count is not None or last_commit_file_count is not None:
-        commits = list(Repo(output_dir).iter_commits("main", max_count=10))
+        repo = Repo(output_dir)
+        commits = list(repo.iter_commits(rev=repo.head.reference, max_count=10))
         if commit_count is not None:
             assert len(commits) == commit_count
         if last_commit_file_count is not None:
