@@ -45,7 +45,9 @@ On a machine with a web browser, run the following to generate a token and paste
 
 This is a one-time operation. If successful, {app_name} can proceed in headless mode
 from this point forward.
-'''.format(app_name=self.app_name, authorize_command=self.authorize_command))
+''' \
+                .format(app_name=self.app_name, authorize_command=self.authorize_command) \
+                .format(email_addr=email_addr))
             user_input_token = json.loads(input("Paste the token here:\n").strip())
             credentials = Credentials.from_authorized_user_info(user_input_token)
             self._validate_user_in_token(credentials, email_addr)
