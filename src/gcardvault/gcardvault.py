@@ -5,6 +5,7 @@ import pathlib
 from getopt import gnu_getopt, GetoptError
 from xml.etree import ElementTree
 from googleapiclient.discovery import build
+from dotenv import load_dotenv
 
 from .google_oauth2 import GoogleOAuth2
 from .git_vault_repo import GitVaultRepo
@@ -13,8 +14,12 @@ from .etag_manager import ETagManager
 
 # Note: OAuth2 auth code flow for "installed applications" assumes the client secret
 # cannot actually be kept secret (must be embedded in application/source code).
-# Access to user data must be consented by the user and [more importantly] the
+# Access to user data must be consented by the user and (more importantly) the
 # access & refresh tokens are stored locally with the user running the program.
+# 
+# See https://developers.google.com/identity/protocols/oauth2/native-app
+# “Installed apps are distributed to individual devices, and it is assumed
+# that these apps cannot keep secrets.”
 DEFAULT_CLIENT_ID = "160026605549-ktl7ghvc9gttpa8u902nm65j3tro3119.apps.googleusercontent.com"
 DEFAULT_CLIENT_SECRET = "v9IMS-73WqhjbE5TOB5Gz90s"
 OAUTH_SCOPES = [
@@ -35,6 +40,8 @@ CARDDAV_REPORT_PAGE_SIZE = 250
 
 COMMANDS = ['sync', 'noop']
 
+load_dotenv()
+
 dirname = os.path.dirname(__file__)
 usage_file_path = os.path.join(dirname, "USAGE.txt")
 version_file_path = os.path.join(dirname, "VERSION.txt")
@@ -47,8 +54,8 @@ class Gcardvault:
         self.user = None
         self.export_only = False
         self.clean = False
-        self.conf_dir = os.path.expanduser("~/.gcardvault")
-        self.output_dir = os.getcwd()
+        self.conf_dir = os.getenv("GCARDVAULT_CONF_DIR", os.path.expanduser("~/.gcardvault"))
+        self.output_dir = os.getenv("GCARDVAULT_OUTPUT_DIR", os.path.join(os.getcwd(), 'gcardvault'))
         self.client_id = DEFAULT_CLIENT_ID
         self.client_secret = DEFAULT_CLIENT_SECRET
 
@@ -67,6 +74,7 @@ class Gcardvault:
 
     def sync(self):
         self._ensure_dirs()
+
         credentials = self._get_oauth2_credentials()
 
         if not self.export_only:

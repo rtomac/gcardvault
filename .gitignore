@@ -2,7 +2,7 @@
 /.devenv/
 /.vscode/
 /.conf/
-/.output/
+/output/
 .pytest_cache/
 __pycache__/
 /dist/

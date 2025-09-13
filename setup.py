@@ -1,5 +1,5 @@
 import os
-from setuptools import setup, find_packages
+from setuptools import setup
 import pathlib
 
 
@@ -7,7 +7,7 @@ package_name = "gcardvault"
 cli_name = package_name
 
 dirname = os.path.dirname(__file__)
-version_file_path = os.path.join(dirname, "src", "VERSION.txt")
+version_file_path = os.path.join(dirname, "src", package_name, "VERSION.txt")
 readme_file_path = os.path.join(dirname, "README.md")
 
 
@@ -20,27 +20,29 @@ setup(
     long_description=pathlib.Path(readme_file_path).read_text(),
     long_description_content_type="text/markdown",
     author="Ryan Tomac",
-    author_email="rtomac@gmail.com",
+    author_email="ryan@tomacfamily.com",
     license="MIT",
     packages=[package_name],
-    package_dir={package_name: "src"},
+    package_dir={package_name: "src/" + package_name},
     package_data={package_name: ["*.txt"]},
     include_package_data=True,
     scripts=[f"bin/{cli_name}"],
-    python_requires=">=3.6",
+    python_requires=">=3.9",
     install_requires=[
-        "google-api-python-client==2.7.*",
-        "google-auth-httplib2==0.1.*",
-        "google-auth-oauthlib==0.4.*",
-        "requests==2.25.*",
+        "google-api-python-client==2.181.*",
+        "google-auth-httplib2==0.2.*",
+        "google-auth-oauthlib==1.2.*",
+        "requests==2.32.*",
         "GitPython==3.1.*",
+        "python-dotenv==1.1.*",
     ],
     extras_require={
         "dev": [
             "pycodestyle",
+            "setuptools",
         ],
         "test": [
-            "pytest==6.*",
+            "pytest==8.*",
             "Jinja2==3.*",
         ],
         "release": [
@@ -54,7 +56,7 @@ setup(
         "Natural Language :: English",
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.9",
         "Topic :: System :: Archiving :: Backup",
     ],
 )
