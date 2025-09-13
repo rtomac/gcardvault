@@ -8,5 +8,5 @@ RUN cd /usr/local/src \
     && pip install gcardvault-latest.tar.gz[test] \
     && mkdir -p /root/gcardvault
 
-WORKDIR /root/gcardvault
+WORKDIR /root
 ENTRYPOINT [ "gcardvault" ]
