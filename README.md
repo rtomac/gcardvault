@@ -29,7 +29,7 @@ Simply export contacts, do not save version history:
 gcardvault sync foo.bar@gmail.com --export-only
 ```
 
-See the [CLI help](https://github.com/rtomac/gcardvault/blob/main/src/USAGE.txt) for full usage and other notes.
+See the [CLI help](https://github.com/rtomac/gcardvault/blob/main/src/gcardvault/USAGE.txt) for full usage and other notes.
 
 # Requirements
 
@@ -67,6 +67,18 @@ You can provide your client ID and secret to gcardvault as follows:
 ```
 gcardvault sync foo.bar@gmail.com --client-id my_client_id --client-secret my_client_secret
 ```
+
+If you are providing your own Google OAuth2 client, you will need to ensure the following APIs and OAuth2 scopes are enabled for the project/client in GCP.
+
+Google APIs:
+- People API: `people.googleapis.com`
+- Google Contacts CardDAV API: `carddav.googleapis.com`
+
+OAuth2 scopes:
+- `openid`
+- `https://www.googleapis.com/auth/userinfo.email`
+- `https://www.googleapis.com/auth/contacts.readonly`
+- `https://www.googleapis.com/auth/carddav`
 
 # Development
 
