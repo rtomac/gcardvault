@@ -104,12 +104,6 @@ class Gcardvault:
         self._google_oauth2.authz_and_save_token(
             self._token_file_path(), self.client_id, self.client_secret, OAUTH_SCOPES, self.user)
 
-    def _authorize_command(self, client_id, client_secret, email_addr):
-        flags = ""
-        if client_id != DEFAULT_CLIENT_ID:
-            flags = f' --client-id "{client_id}" --client-secret "{client_secret}"'
-        return f"gcardvault authorize {email_addr}{flags}"
-
     def authorize(self):
         self._ensure_dirs()
         self._google_oauth2.authz_and_export_token(
@@ -184,6 +178,12 @@ class Gcardvault:
         for dir in [self.conf_dir, self.output_dir]:
             pathlib.Path(dir).mkdir(parents=True, exist_ok=True)
     
+    def _authorize_command(self, client_id, client_secret, email_addr):
+        flags = ""
+        if client_id != DEFAULT_CLIENT_ID:
+            flags = f' --client-id "{client_id}" --client-secret "{client_secret}"'
+        return f"gcardvault authorize {email_addr}{flags}"
+
     def _token_file_path(self):
         return os.path.join(self.conf_dir, f"{self.user}.token.json")
     
