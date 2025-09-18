@@ -105,7 +105,10 @@ class Gcardvault:
             self._token_file_path(), self.client_id, self.client_secret, OAUTH_SCOPES, self.user)
 
     def _authorize_command(self, client_id, client_secret, email_addr):
-        return f"gcardvault authorize {email_addr}"
+        flags = ""
+        if client_id != DEFAULT_CLIENT_ID:
+            flags = f' --client-id "{client_id}" --client-secret "{client_secret}"'
+        return f"gcardvault authorize {email_addr}{flags}"
 
     def authorize(self):
         self._ensure_dirs()
