@@ -62,7 +62,7 @@ class Gcardvault:
         self._repo = None
         self._google_oauth2 = google_oauth2 if google_oauth2 is not None else GoogleOAuth2(
             app_name="gcardvault",
-            authorize_command="gcardvault authorize {email_addr}",
+            authorize_command_fn=self._authorize_command,
         )
         self._google_apis = google_apis if google_apis is not None else GoogleApis()
 
@@ -103,6 +103,9 @@ class Gcardvault:
         self._ensure_dirs()
         self._google_oauth2.authz_and_save_token(
             self._token_file_path(), self.client_id, self.client_secret, OAUTH_SCOPES, self.user)
+
+    def _authorize_command(self, client_id, client_secret, email_addr):
+        return f"gcardvault authorize {email_addr}"
 
     def authorize(self):
         self._ensure_dirs()
