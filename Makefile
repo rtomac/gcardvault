@@ -8,7 +8,7 @@ container_hub_acct=rtomac
 image_name:=${pkg_name}
 image_tag=latest
 image_version_tag:=${pkg_version}
-image_platforms=linux/arm64,linux/amd64,linux/amd64/v2,linux/riscv64,linux/ppc64le,linux/s390x,linux/386,linux/arm/v7,linux/arm/v6
+image_platforms=linux/arm64,linux/amd64,linux/arm/v7,linux/arm/v6,linux/386
 
 all: dist
 
