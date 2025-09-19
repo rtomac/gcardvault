@@ -360,7 +360,9 @@ def _setup_dirs():
 
 
 def _get_google_oauth2_mock(new_authorization=False, email="foo.bar@gmail.com"):
-    google_oauth2 = GoogleOAuth2("gcardvault", "gcardvault authorize")
+    def authorize_command_fn(client_id, client_secret, email_addr):
+        return "gcardvault authorize"
+    google_oauth2 = GoogleOAuth2("gcardvault", authorize_command_fn)
 
     credentials = MagicMock(token="phony")
     google_oauth2.get_credentials = MagicMock(return_value=(credentials, new_authorization))

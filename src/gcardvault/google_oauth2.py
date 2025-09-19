@@ -13,9 +13,9 @@ GOOGLE_AUTH_CERTS_URI = "https://www.googleapis.com/oauth2/v1/certs"
 
 
 class GoogleOAuth2():
-    def __init__(self, app_name, authorize_command):
+    def __init__(self, app_name, authorize_command_fn):
         self.app_name = app_name
-        self.authorize_command = authorize_command
+        self.authorize_command_fn = authorize_command_fn
 
     def get_credentials(self, token_file_path, client_id, client_secret, scopes, email_addr):
         credentials = None
@@ -37,17 +37,15 @@ class GoogleOAuth2():
 
     def authz_and_save_token(self, token_file_path, client_id, client_secret, scopes, email_addr):
         if self._check_is_headless():
-            print('''
+            print(f'''
 No web browser detected. Google's OAuth2 authorization cannot proceed in headless mode.
 
 On a machine with a web browser, run the following to generate a token and paste it below:
-   {authorize_command}
+   {self.authorize_command_fn(client_id, client_secret, email_addr)}
 
-This is a one-time operation. If successful, {app_name} can proceed in headless mode
+This is a one-time operation. If successful, {self.app_name} can proceed in headless mode
 from this point forward.
-''' \
-                .format(app_name=self.app_name, authorize_command=self.authorize_command) \
-                .format(email_addr=email_addr))
+''')
             user_input_token = json.loads(input("Paste the token here:\n").strip())
             credentials = Credentials.from_authorized_user_info(user_input_token)
             self._validate_user_in_token(credentials, email_addr)
